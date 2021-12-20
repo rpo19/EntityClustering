@@ -1,5 +1,6 @@
 from collections import Counter
 import numpy as np
+import pandas as pd
 
 
 class DataEvolver:
@@ -54,6 +55,9 @@ class Cluster:
         self.mentions = mentions
         self.entities = entities
 
+    def get_title(self):
+        return pd.Series(self.mentions).value_counts().index[0]
+
     def add_element(self, mention, entity, encodings):
         self.mentions.append(mention)
         self.entities.append(entity)
@@ -87,6 +91,11 @@ class Cluster:
     def __str__(self):
         return "Cluster" + self.print_to_html().__str__() + '; <span style="background: pink;">#_elements</span> = ' + str(
             len(self.mentions))
+    
+    def __iter__(self):
+        yield 'title', self.get_title()
+        yield 'nelements', len(self.mentions)
+        yield 'mentions', self.mentions
 
     def print_to_html(self):
         to_print = {"<b>" + x + "</b>": [] for x in set(self.entities)}
