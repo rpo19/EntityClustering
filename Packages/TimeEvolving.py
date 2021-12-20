@@ -87,7 +87,8 @@ class Cluster:
 
     def __add__(self, other):
         return Cluster(mentions=self.mentions + other.mentions, entities=self.entities + other.entities,
-                       encodings_list=self.encodings_list + other.encodings_list)
+                       encodings_list=self.encodings_list + other.encodings_list,
+                       mentions_id=self.mentions_id + other.mentions_id)
 
     def __repr__(self):
         return "Cluster" + self.print_to_html().__repr__() + "; #_elements = " + str(len(self.mentions))
