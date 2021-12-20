@@ -43,22 +43,26 @@ class DataEvolverIterator:
 
 
 class Cluster:
-    def __init__(self, mentions=None, entities=None, encodings_list=None):
+    def __init__(self, mentions=None, entities=None, encodings_list=None, mentions_id=None):
         if encodings_list is None:
             encodings_list = []
         if entities is None:
             entities = []
+        if mentions_id is None:
+            mentions_id = []
         if mentions is None:
             mentions = []
 
         self.encodings_list = encodings_list
+        self.mentions_id = mentions_id
         self.mentions = mentions
         self.entities = entities
 
     def get_title(self):
         return pd.Series(self.mentions).value_counts().index[0]
 
-    def add_element(self, mention, entity, encodings):
+    def add_element(self, mention, entity, encodings, mentions_id):
+        self.mentions_id.append(mentions_id)
         self.mentions.append(mention)
         self.entities.append(entity)
         self.encodings_list.append(encodings)
@@ -95,6 +99,7 @@ class Cluster:
     def __iter__(self):
         yield 'title', self.get_title()
         yield 'nelements', len(self.mentions)
+        yield 'mentions_id', self.mentions_id
         yield 'mentions', self.mentions
 
     def print_to_html(self):
