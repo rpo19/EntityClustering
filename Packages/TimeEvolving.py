@@ -2,6 +2,11 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 from sklearn_extra.cluster import KMedoids
+import base64
+
+def vector_encode(v):
+    s = base64.b64encode(v).decode()
+    return s
 
 class DataEvolver:
     def __init__(self, documents, data, step=3, randomly=False, seed=None):
@@ -104,7 +109,7 @@ class Cluster:
         yield 'nelements', len(self.mentions)
         yield 'mentions_id', self.mentions_id
         yield 'mentions', self.mentions
-        yield 'center', self.center
+        yield 'center', vector_encode(self.center)
 
     def print_to_html(self):
         to_print = {"<b>" + x + "</b>": [] for x in set(self.entities)}
