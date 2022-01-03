@@ -1,7 +1,7 @@
 from collections import Counter
 import numpy as np
 import pandas as pd
-
+from sklearn_extra.cluster import KMedoids
 
 class DataEvolver:
     def __init__(self, documents, data, step=3, randomly=False, seed=None):
@@ -43,7 +43,7 @@ class DataEvolverIterator:
 
 
 class Cluster:
-    def __init__(self, mentions=None, entities=None, encodings_list=None, mentions_id=None):
+    def __init__(self, mentions=None, entities=None, encodings_list=None, mentions_id=None, center_type='medoid'):
         if encodings_list is None:
             encodings_list = []
         if entities is None:
@@ -57,6 +57,8 @@ class Cluster:
         self.mentions_id = mentions_id
         self.mentions = mentions
         self.entities = entities
+        self.center = None
+        self.center_type = center_type
 
     def get_title(self):
         return pd.Series(self.mentions).value_counts().index[0]
@@ -96,12 +98,13 @@ class Cluster:
     def __str__(self):
         return "Cluster" + self.print_to_html().__str__() + '; <span style="background: pink;">#_elements</span> = ' + str(
             len(self.mentions))
-    
+
     def __iter__(self):
         yield 'title', self.get_title()
         yield 'nelements', len(self.mentions)
         yield 'mentions_id', self.mentions_id
         yield 'mentions', self.mentions
+        yield 'center', self.center
 
     def print_to_html(self):
         to_print = {"<b>" + x + "</b>": [] for x in set(self.entities)}
@@ -111,6 +114,16 @@ class Cluster:
             to_print[key] = dict(Counter(to_print[key]))
             to_print[key]['<span style="background: yellow;">#</span>'] = sum(to_print[key].values())
         return to_print
+
+    def get_medoid(self):
+        return KMedoids(n_clusters=1).fit(np.stack(self.encodings_list)).cluster_centers_
+
+
+    def get_center(self):
+        if self.center_type == 'medoid':
+            self.center = self.get_medoid()
+        else:
+            raise NotImplementedError('ERROR: unknown center_type "{}"'.format(self.center_type))
 
 
 def compare_ecoding(cluster1, cluster2):
